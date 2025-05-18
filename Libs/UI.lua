@@ -631,9 +631,10 @@ end
                         for i,v in next, library.toInvis do v.Visible = false end
                         for i,v in next, library.tabbuttons do
                         local state = v == newButton
+                        local function getRainbowColor2() local hue = tick() % 5 / 5 return Color3.fromHSV(hue, 1, 1) end
                         local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-                        local imageTweenStart = TweenService:Create(v, tweenInfo, {ImageColor3 = getRainbowColor()})
-                        local textTweenStart = TweenService:Create(v.text, tweenInfo, {TextColor3 = getRainbowColor()})
+                        local imageTweenStart = TweenService:Create(v, tweenInfo, {ImageColor3 = getRainbowColor2()})
+                        local textTweenStart = TweenService:Create(v.text, tweenInfo, {TextColor3 = getRainbowColor2()})
                         local imageTweenEnd = TweenService:Create(v, tweenInfo, {ImageColor3 = Color3.fromRGB(25,25,25)})
                         local textTweenEnd = TweenService:Create(v.text, tweenInfo, {TextColor3 = Color3.fromRGB(125, 125, 125)})
                         if state then
@@ -921,23 +922,26 @@ end
                                 if not next and key == library.flags[args.flag] and args.callback then
                                     status = not status
                                     args.callback(key, status)
-                                    local keyName = tostring(library.flags[args.flag]):split(".")[3] -- Extracts the key name from the enum value
+                                    local keyName = tostring(library.flags[args.flag]):split(".")[3]
                                     if args.gui then
                                         Name.Visible = true
+                                        local rainbow = getRainbowColor()
+                                        local r, g, b = rainbow.R * 255, rainbow.G * 255, rainbow.B * 255
+                                        local rgb = ("rgb(%d, %d, %d)"):format(r, g, b)
                                         if args.type == "hold" then
-                                            Name.Text = "<font color=\"rgb(255,255,255)\">" ..args.text.. ":</font>".." <font color=\"rgb(43, 0, 255)\">" .."["..keyName.."]".. "</font> ("..args.type..")"
+                                            Name.Text = "<font color=\"rgb(255,255,255)\">" ..args.text.. ":</font>".." <font color=\""..rgb.."\">["..keyName.."]</font> ("..args.type..")"
                                         else
                                             if not Toggle then
                                                 Toggle = true
-                                                Name.Text = "<font color=\"rgb(255,255,255)\">" ..args.text.. ":</font>".." <font color=\"rgb(43, 0, 255)\">" .."["..keyName.."]".. "</font> ("..args.type..")"
+                                                Name.Text = "<font color=\"rgb(255,255,255)\">" ..args.text.. ":</font>".." <font color=\""..rgb.."\">["..keyName.."]</font> ("..args.type..")"
                                             else
                                                 Toggle = false
-                                                Name.Text = "<font color=\"rgb(125, 125, 125)\">" ..args.text.. ":</font>".." <font color=\"rgb(43, 0, 255)\">" .."["..keyName.."]".. "</font> ("..args.type..")"
+                                                Name.Text = "<font color=\"rgb(125, 125, 125)\">" ..args.text.. ":</font>".." <font color=\""..rgb.."\">["..keyName.."]</font> ("..args.type..")"
                                             end
                                         end
                                     end
                                 end
-                                end)
+                                end)                                
 
                                 if args.type == "hold" then
                                     InputService.InputEnded:Connect(function(input)
@@ -953,13 +957,16 @@ end
                                                 button.Text = "None"
                                             else
                                                 button.Text = keynames[key] or ""..key.Name..""
-                                                local keyName = tostring(library.flags[args.flag]):split(".")[3] -- Extracts the key name from the enum value
+                                                local keyName = tostring(library.flags[args.flag]):split(".")[3]
                                                 if args.gui then
                                                     Name.Visible = true
+                                                    local rainbow = getRainbowColor()
+                                                    local r, g, b = rainbow.R * 255, rainbow.G * 255, rainbow.B * 255
+                                                    local rgb = ("rgb(%d, %d, %d)"):format(r, g, b)
                                                     if args.type == "hold" then
-                                                        Name.Text = "<font color=\"rgb(125, 125, 125)\">" ..args.text.. ":</font>".." <font color=\"rgb(43, 0, 255)\">" .."["..keyName.."]".. "</font> ("..args.type..")"
+                                                        Name.Text = "<font color=\"rgb(125, 125, 125)\">" ..args.text.. ":</font>".." <font color=\""..rgb.."\">["..keyName.."]</font> ("..args.type..")"
                                                     else
-                                                        Name.Text = "<font color=\"rgb(125, 125, 125)\">" ..args.text.. ":</font>".." <font color=\"rgb(43, 0, 255)\">" .."["..keyName.."]".. "</font> ("..args.type..")"
+                                                        Name.Text = "<font color=\"rgb(125, 125, 125)\">" ..args.text.. ":</font>".." <font color=\""..rgb.."\">["..keyName.."]</font> ("..args.type..")"
                                                     end
                                                 end
                                             end
@@ -968,14 +975,17 @@ end
                                         if not next and key == library.flags[args.flag] and args.callback then
                                         status = not status
                                         args.callback(key, status)
-                                        local keyName = tostring(library.flags[args.flag]):split(".")[3] -- Extracts the key name from the enum value
+                                        local keyName = tostring(library.flags[args.flag]):split(".")[3]
                                         if args.gui then
                                             Name.Visible = true
-                                            Name.Text = args.text..": <font color=\"rgb(125, 125, 125)\">" .."["..keyName.."]".. "</font> ("..args.type..")"
+                                            local rainbow = getRainbowColor()
+                                            local r, g, b = rainbow.R * 255, rainbow.G * 255, rainbow.B * 255
+                                            local rgb = ("rgb(%d, %d, %d)"):format(r, g, b)
+                                            Name.Text = args.text..": <font color=\""..rgb.."\">["..keyName.."]</font> ("..args.type..")"
                                         end
                                         end
                                     end)
-                                end
+                                end                                
 
                                 button.MouseButton1Click:Connect(function()
                                 if library.colorpicking then return end

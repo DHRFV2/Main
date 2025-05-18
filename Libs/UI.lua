@@ -28,13 +28,20 @@ if not isfile("Optix.Wtf") then
     return Color3.fromHSV(hue / 360, 1, 1)
  end
  --
+ local function color_to_rgb_string(color)
+    return string.format("rgb(%d, %d, %d)", color.R * 255, color.G * 255, color.B * 255)
+ end
+
+ local hue = tick() % 360
+ local color_string = color_to_rgb_string(getRainbowColor(hue))
+
  for _, obj in pairs(menu:GetDescendants()) do
-    if obj.Name:lower():find('userlabel') then
-        obj.Text = 'active user: <font color="rgb(43, 0, 255)">' .. game.Players.LocalPlayer.Name .. '</font>'
-    end
-    if obj.Name:lower():find('buildlabel') then
-        obj.Text = 'build: <font color="rgb(43, 0, 255)">Public</font>'
-    end
+     if obj.Name:lower():find('userlabel') then
+         obj.Text = 'active user: <font color="' .. color_string .. '">' .. game.Players.LocalPlayer.Name .. '</font>'
+     end
+     if obj.Name:lower():find('buildlabel') then
+         obj.Text = 'build: <font color="' .. color_string .. '">Public</font>'
+     end
  end
  --vars
  local CloneCore = cloneref(game.CoreGui)
@@ -117,7 +124,17 @@ if not isfile("Optix.Wtf") then
  Gradient.Position = UDim2.new(0, 0, 0, 1)
  Gradient.Size = UDim2.new(0, 180, 0, 1)
  
- KeybindGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(0, 0, 0)), ColorSequenceKeypoint.new(0.50, Color3.fromRGB(43, 0, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(0, 0, 0))}
+ local run_service = game:GetService("RunService")
+ run_service.RenderStepped:Connect(function()
+     local hue = (tick() * 60) % 360
+     local rainbow_color = getRainbowColor(hue)
+ 
+     KeybindGradient.Color = ColorSequence.new{
+         ColorSequenceKeypoint.new(0.00, Color3.fromRGB(0, 0, 0)),
+         ColorSequenceKeypoint.new(0.50, rainbow_color),
+         ColorSequenceKeypoint.new(1.00, Color3.fromRGB(0, 0, 0))
+     }
+ end)
  
  Name.Name = "Name"
  Name.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -126,11 +143,15 @@ if not isfile("Optix.Wtf") then
  Name.BorderSizePixel = 0
  Name.Size = UDim2.new(0, 175, 0, 28)
  Name.FontFace = Fonts.ProggyTiny
- Name.Text = "[<font color=\"rgb(43, 0, 255)\">Keybinds</font>]"
  Name.TextColor3 = Color3.fromRGB(255, 255, 255)
  Name.TextSize = 9
  Name.RichText = true
  Name.BorderSizePixel = 1
+ run_service.RenderStepped:Connect(function()
+     local hue = (tick() * 60) % 360
+     local color_string = color_to_rgb_string(getRainbowColor(hue))
+     Name.Text = '[<font color="' .. color_string .. '">Keybinds</font>]'
+ end)
  
  Element.Name = "Element"
  Element.BackgroundColor3 = Color3.fromRGB(31, 31, 31)
@@ -159,12 +180,16 @@ if not isfile("Optix.Wtf") then
  Name_2.Position = UDim2.new(0.5, 0, -1.85000002, 0)
  Name_2.Size = UDim2.new(1, 0, 1, 0)
  Name_2.FontFace = Fonts.ProggyTiny
- Name_2.Text = "Silent Aim: <font color=\"rgb(43, 0, 255)\">[MB1]</font>"
  Name_2.TextColor3 = Color3.fromRGB(125, 125, 125)
  Name_2.TextSize = 9
  Name_2.BorderSizePixel = 1
  Name_2.RichText = true
  Name_2.Visible = false
+ run_service.RenderStepped:Connect(function()
+    local hue = (tick() * 60) % 360
+    local color_string = string.format("rgb(%d, %d, %d)", getRainbowColor(hue).R * 255, getRainbowColor(hue).G * 255, getRainbowColor(hue).B * 255)
+    Name_2.Text = 'Silent Aim: <font color="' .. color_string .. '">[MB1]</font>'
+end)
  
  local dragging
  local dragInput
@@ -210,13 +235,16 @@ if not isfile("Optix.Wtf") then
     WatermarkGui.Parent = CloneCore
     WatermarkGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     
+    local hue = tick() % 360
+    local rainbow_color = getRainbowColor(hue)
+    
     WatermarkFrame.Parent = WatermarkGui
     WatermarkFrame.BackgroundColor3 = Color3.fromRGB(11, 11, 11)
-    WatermarkFrame.BorderColor3 = Color3.fromRGB(43, 0, 255)
+    WatermarkFrame.BorderColor3 = rainbow_color
     WatermarkFrame.BorderSizePixel = 2
     WatermarkFrame.Position = UDim2.new(0.0452012382, 33, 0.0223325081, -48)
     WatermarkFrame.Size = UDim2.new(0, 200, 0, 20)
-    WatermarkFrame.Visible = false
+    WatermarkFrame.Visible = false    
     
     WaterMarkLabel.Parent = WatermarkFrame
     WaterMarkLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -295,19 +323,23 @@ if not isfile("Optix.Wtf") then
        end
     end)
  
+    local function color_to_rgb_string(color)
+        return string.format("rgb(%d, %d, %d)", color.R * 255, color.G * 255, color.B * 255)
+    end
+    
     task.spawn(function()
-       while task.wait() do
-         rotateGradient()
-         local time = os.date("%X", os.time())
-         local ping = string.format('%.0f', game.Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
-         local uid = "1"
-         local fpsValue = string.split(game.Stats.Workspace.Heartbeat:GetValueString(), ".")[1]
-         WaterMarkLabel.Text = 'Optix.Wtf<font color="rgb(74, 74, 74)"></font> - uid: <font color="rgb(74, 74, 74)">' .. uid .. '</font> / fps: <font color="rgb(43, 0, 255)">' .. fpsValue .. '</font> / ping: <font color="rgb(43, 0, 255)">' .. ping .. '</font> / time: <font color="rgb(43, 0, 255)">' .. time .. '</font>'
-       end
-    end)
-    return Watermark
- end
- 
+        while task.wait() do
+            rotateGradient()
+            local hue = (tick() * 60) % 360
+            local rainbow = color_to_rgb_string(getRainbowColor(hue))
+            local time = os.date("%X", os.time())
+            local ping = string.format('%.0f', game.Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+            local uid = "1"
+            local fpsValue = string.split(game.Stats.Workspace.Heartbeat:GetValueString(), ".")[1]
+            WaterMarkLabel.Text = 'Optix.Wtf<font color="rgb(74, 74, 74)"></font> - uid: <font color="rgb(74, 74, 74)">' .. uid .. '</font> / fps: <font color="' .. rainbow .. '">' .. fpsValue .. '</font> / ping: <font color="' .. rainbow .. '">' .. ping .. '</font> / time: <font color="' .. rainbow .. '">' .. time .. '</font>'
+        end
+    end)    
+end
  local library = {
     Title = 'Optix.Wtf<font color="rgb(74, 74, 74)"></font> | Private',
     keybind = Enum.KeyCode.RightBracket,
@@ -358,6 +390,13 @@ if not isfile("Optix.Wtf") then
        [Enum.UserInputType.MouseButton2] = 'MB2',
        [Enum.UserInputType.MouseButton3] = 'MB3'
     }
+    local run_service = game:GetService("RunService")
+    run_service.RenderStepped:Connect(function()
+        local hue = (tick() * 60) % 360
+        local rainbow = getRainbowColor(hue)
+        library.Colors.libColor = rainbow
+        library.Colors.AccentColor = rainbow
+    end)
     
     menu.bg.Position = UDim2.new(0.5,-menu.bg.Size.X.Offset/2,0.5,-menu.bg.Size.Y.Offset/2)
     menu.Parent = CloneCore
@@ -416,15 +455,19 @@ if not isfile("Optix.Wtf") then
     
     createUI()
     
-
     for _, obj in pairs(menu:GetDescendants()) do
         if obj.Name:lower():find('name_esp') then
-           obj.Text = '<font color="rgb(43, 0, 255)">' .. game.Players.LocalPlayer.Name .. '</font>'
+            local hue = (tick() * 60) % 360
+            local color = getRainbowColor(hue)
+            local rgb = string.format("rgb(%d, %d, %d)", color.R * 255, color.G * 255, color.B * 255)
+            obj.Text = '<font color="' .. rgb .. '">' .. game.Players.LocalPlayer.Name .. '</font>'
         end
     end
+    --    
     function library:visualize(state)
         Background.Visible = state
     end
+    --
     function library:keybind_color(Color)
      KeybindGradient.Color = ColorSequence.new{
          ColorSequenceKeypoint.new(0.00, Color3.fromRGB(0, 0, 0)), 
@@ -464,29 +507,37 @@ if not isfile("Optix.Wtf") then
     library.NotificationArea = library:Create('Frame', {BackgroundTransparency = 1; Position = UDim2.new(0.003, 0, 0, 40); Size = UDim2.new(0, 300, 0, 200); ZIndex = 100; Parent = CloneScreenGui})
     library:Create('UIListLayout', {Padding = UDim.new(0, 4); FillDirection = Enum.FillDirection.Vertical; SortOrder = Enum.SortOrder.LayoutOrder; Parent = library.NotificationArea})
     
-        function library:Notify(Text, Time)
-            local XSize, YSize = library:GetTextBounds(Text, Enum.Font.Code, 9); YSize = YSize + 8
-            local NotifyOuter = library:Create('Frame', {BorderColor3 = Color3.new(43, 0, 255); Position = UDim2.new(0, 100, 0, 10); Size = UDim2.new(0, 0, 0, YSize); ClipsDescendants = true; Transparency = 0; ZIndex = 100; Parent = library.NotificationArea})
-            library:Create('UIGradient', {Color = ColorSequence.new{ColorSequenceKeypoint.new(0, library.Colors.MainColor), ColorSequenceKeypoint.new(0.1, library.Colors.MainColor), ColorSequenceKeypoint.new(0.6, library.Colors.MainColor), ColorSequenceKeypoint.new(1, library.Colors.MainColor)}, Rotation = -120; Parent = NotifyOuter})
-            local NotifyInner = library:Create('Frame', {BackgroundColor3 = library.Colors.MainColor; BorderColor3 = library.Colors.OutlineColor; BorderMode = Enum.BorderMode.Inset; Size = UDim2.new(1, 0, 1, 0); ZIndex = 101; Parent = NotifyOuter})
-            local InnerFrame = library:Create('Frame', {BackgroundColor3 = Color3.new(1, 1, 1); BorderSizePixel = 0; Position = UDim2.new(0, 1, 0, 1); Size = UDim2.new(1, -2, 1, -2); ZIndex = 102; Parent = NotifyInner})
-            local Line = library:Create('Frame', {BackgroundColor3 = library.Colors.AccentColor; BorderSizePixel = 0; Position = UDim2.new(1, 0, 0.97, 0); Size = UDim2.new(-0.999, -0.5, 0, 1.9); ZIndex = 102; Parent = NotifyInner})
-            local LeftColor = library:Create('Frame', {BackgroundColor3 = library.Colors.AccentColor; BorderSizePixel = 0; Position = UDim2.new(0, -1, 0, 22); Size = UDim2.new(0, 2, -1.2, 0); ZIndex = 104; Parent = NotifyOuter})
-            local Gradient = library:Create('UIGradient', {Color = ColorSequence.new({ColorSequenceKeypoint.new(0, library.Colors.MainColor), ColorSequenceKeypoint.new(1, library.Colors.MainColor)}); Rotation = -90; Parent = InnerFrame})
-            library:AddToRegistry(NotifyInner, {BackgroundColor3 = 'MainColor'; BorderColor3 = 'OutlineColor';}, true)
-            library:AddToRegistry(Gradient, {Color = function() return ColorSequence.new({ColorSequenceKeypoint.new(0, library.Colors.MainColor), ColorSequenceKeypoint.new(1, library.Colors.MainColor)}); end})
-            library:CreateLabel({Position = UDim2.new(0, 6, 0, 0); Size = UDim2.new(1, -4, 1, 0); Text = Text; TextXAlignment = Enum.TextXAlignment.Left; TextSize = 9; ZIndex = 103; Parent = InnerFrame})
-            pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, XSize + 42 + 4, 0, YSize), 'Out', 'Quad', 0.6, true)
-            pcall(LeftColor.TweenSize, LeftColor, UDim2.new(0, 2, 0, 0), 'Out', 'Linear', 1, true)
-            wait(0.9)
-            pcall(Line.TweenSize, Line, UDim2.new(0, 0, 0, 2), 'Out', 'Linear', Time, true)
+    function library:Notify(Text, Time)
+        local XSize, YSize = library:GetTextBounds(Text, Enum.Font.Code, 9); YSize = YSize + 8
+        local NotifyOuter = library:Create('Frame', {BorderColor3 = Color3.fromHSV((tick()*60)%1,1,1); Position = UDim2.new(0, 100, 0, 10); Size = UDim2.new(0, 0, 0, YSize); ClipsDescendants = true; Transparency = 0; ZIndex = 100; Parent = library.NotificationArea})
+        library:Create('UIGradient', {Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, Color3.fromHSV(0,1,1)),
+            ColorSequenceKeypoint.new(0.2, Color3.fromHSV(0.16,1,1)),
+            ColorSequenceKeypoint.new(0.4, Color3.fromHSV(0.33,1,1)),
+            ColorSequenceKeypoint.new(0.6, Color3.fromHSV(0.5,1,1)),
+            ColorSequenceKeypoint.new(0.8, Color3.fromHSV(0.66,1,1)),
+            ColorSequenceKeypoint.new(1, Color3.fromHSV(0.83,1,1))
+        }, Rotation = -120; Parent = NotifyOuter})
+        local NotifyInner = library:Create('Frame', {BackgroundColor3 = library.Colors.MainColor; BorderColor3 = library.Colors.OutlineColor; BorderMode = Enum.BorderMode.Inset; Size = UDim2.new(1, 0, 1, 0); ZIndex = 101; Parent = NotifyOuter})
+        local InnerFrame = library:Create('Frame', {BackgroundColor3 = Color3.new(1, 1, 1); BorderSizePixel = 0; Position = UDim2.new(0, 1, 0, 1); Size = UDim2.new(1, -2, 1, -2); ZIndex = 102; Parent = NotifyInner})
+        local Line = library:Create('Frame', {BackgroundColor3 = Color3.fromHSV((tick()*60)%1,1,1); BorderSizePixel = 0; Position = UDim2.new(1, 0, 0.97, 0); Size = UDim2.new(-0.999, -0.5, 0, 1.9); ZIndex = 102; Parent = NotifyInner})
+        local LeftColor = library:Create('Frame', {BackgroundColor3 = Color3.fromHSV((tick()*60)%1,1,1); BorderSizePixel = 0; Position = UDim2.new(0, -1, 0, 22); Size = UDim2.new(0, 2, -1.2, 0); ZIndex = 104; Parent = NotifyOuter})
+        local Gradient = library:Create('UIGradient', {Color = ColorSequence.new({ColorSequenceKeypoint.new(0, library.Colors.MainColor), ColorSequenceKeypoint.new(1, library.Colors.MainColor)}); Rotation = -90; Parent = InnerFrame})
+        library:AddToRegistry(NotifyInner, {BackgroundColor3 = 'MainColor'; BorderColor3 = 'OutlineColor';}, true)
+        library:AddToRegistry(Gradient, {Color = function() return ColorSequence.new({ColorSequenceKeypoint.new(0, library.Colors.MainColor), ColorSequenceKeypoint.new(1, library.Colors.MainColor)}) end})
+        library:CreateLabel({Position = UDim2.new(0, 6, 0, 0); Size = UDim2.new(1, -4, 1, 0); Text = Text; TextXAlignment = Enum.TextXAlignment.Left; TextSize = 9; ZIndex = 103; Parent = InnerFrame})
+        pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, XSize + 46, 0, YSize), 'Out', 'Quad', 0.6, true)
+        pcall(LeftColor.TweenSize, LeftColor, UDim2.new(0, 2, 0, 0), 'Out', 'Linear', 1, true)
+        wait(0.9)
+        pcall(Line.TweenSize, Line, UDim2.new(0, 0, 0, 2), 'Out', 'Linear', Time or 5, true)
                 task.spawn(function()
                     wait(Time or 5)
                     pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, 0, 0, YSize), 'Out', 'Quad', 0.4, true)
                     wait(0.4)
                     NotifyOuter:Destroy()
                 end)
-            end    
+            end
+            
  
             function draggable(frame)
                 local userInputService = game:GetService("UserInputService")
@@ -581,8 +632,8 @@ if not isfile("Optix.Wtf") then
                         for i,v in next, library.tabbuttons do
                         local state = v == newButton
                         local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-                        local imageTweenStart = TweenService:Create(v, tweenInfo, {ImageColor3 = Color3.fromRGB(43, 0, 255)})
-                        local textTweenStart = TweenService:Create(v.text, tweenInfo, {TextColor3 = Color3.fromRGB(43, 0, 255)})
+                        local imageTweenStart = TweenService:Create(v, tweenInfo, {ImageColor3 = getRainbowColor()})
+                        local textTweenStart = TweenService:Create(v.text, tweenInfo, {TextColor3 = getRainbowColor()})
                         local imageTweenEnd = TweenService:Create(v, tweenInfo, {ImageColor3 = Color3.fromRGB(25,25,25)})
                         local textTweenEnd = TweenService:Create(v.text, tweenInfo, {TextColor3 = Color3.fromRGB(125, 125, 125)})
                         if state then
@@ -841,31 +892,32 @@ if not isfile("Optix.Wtf") then
                                 local key = input.KeyCode == Enum.KeyCode.Unknown and input.UserInputType or input.KeyCode
                                 if next then
                                     if not table.find(library.blacklisted,key) then
-                                    next = false
-                                    library.flags[args.flag] = key
-                                    if key.Name == "Unknown" or key.Name == "Unknown" then
-                                        button.Text = "None"
-                                    else
-                                        button.Text = keynames[key] or ""..key.Name..""
-                                        local keyName = tostring(library.flags[args.flag]):split(".")[3] -- Extracts the key name from the enum value
-                                        if args.gui then
-                                            Name.Visible = true
-                                            if args.type == "hold" then
-                                                Name.Text = "<font color=\"rgb(255,255,255)\">" ..args.text.. ":</font>".." <font color=\"rgb(43, 0, 255)\">" .."["..keyName.."]".. "</font> ("..args.type..")"
-                                            else
-                                                if not Toggle then
-                                                    Toggle = true
-                                                    Name.Text = "<font color=\"rgb(255,255,255)\">" ..args.text.. ":</font>".." <font color=\"rgb(43, 0, 255)\">" .."["..keyName.."]".. "</font> ("..args.type..")"
+                                        next = false
+                                        library.flags[args.flag] = key
+                                        if key.Name == "Unknown" then
+                                            button.Text = "None"
+                                        else
+                                            local keyName = tostring(library.flags[args.flag]):split(".")[3]
+                                            button.Text = keynames[key] or key.Name
+                                            if args.gui then
+                                                Name.Visible = true
+                                                local rainbow = string.format('rgb(%d,%d,%d)', 255*math.abs(math.sin(tick()*3)), 0, 255*math.abs(math.cos(tick()*3)))
+                                                if args.type == "hold" then
+                                                    Name.Text = ("<font color=\"rgb(255,255,255)\">%s:</font> <font color=\"%s\">[%s]</font> (%s)"):format(args.text, rainbow, keyName, args.type)
                                                 else
-                                                    Toggle = false
-                                                    Name.Text = "<font color=\"rgb(125, 125, 125)\">" ..args.text.. ": /font>".." <font color=\"rgb(43, 0, 255)\">" .."["..keyName.."]".. "</font> ("..args.type..")"
+                                                    if not Toggle then
+                                                        Toggle = true
+                                                        Name.Text = ("<font color=\"rgb(255,255,255)\">%s:</font> <font color=\"%s\">[%s]</font> (%s)"):format(args.text, rainbow, keyName, args.type)
+                                                    else
+                                                        Toggle = false
+                                                        Name.Text = ("<font color=\"rgb(125,125,125)\">%s:</font> <font color=\"%s\">[%s]</font> (%s)"):format(args.text, rainbow, keyName, args.type)
+                                                    end
                                                 end
                                             end
                                         end
+                                        button.TextColor3 = Color3.fromRGB(155, 155, 155)
                                     end
-                                    button.TextColor3 = Color3.fromRGB(155, 155, 155)
-                                    end
-                                end
+                                end                                
                                 if not next and key == library.flags[args.flag] and args.callback then
                                     status = not status
                                     args.callback(key, status)
@@ -936,12 +988,13 @@ if not isfile("Optix.Wtf") then
                                 library.flags[args.flag] = Enum.KeyCode.Unknown
                                 library.options[args.flag] = {type = "keybind",changeState = updateValue,skipflag = args.skipflag,oldargs = args}
 
-                                local keyName = tostring(args.key):split(".")[3] -- Extracts the key name from the enum value
+                                local keyName = tostring(args.key):split(".")[3] 
                                 if args.gui then
                                     Name.Visible = true
-                                    Name.Text = args.text..": <font color=\"rgb(43, 0, 255)\">" .."["..keyName.."]".. "</font> ("..args.type..")"
+                                    local rainbow = string.format('rgb(%d,%d,%d)', 255*math.abs(math.sin(tick()*3)), 0, 255*math.abs(math.cos(tick()*3)))
+                                    Name.Text = args.text..": <font color=\""..rainbow.."\">["..keyName.."]</font> ("..args.type..")"
                                 end
-
+                                
                                 updateValue(args.key or Enum.KeyCode.Unknown)
                             end
                             function toggle:addColorpicker(args)

@@ -1,5 +1,6 @@
 repeat task.wait() until game:IsLoaded() if not isfile("Sentra.Pub") then makefolder("Sentra.Pub") end
-    local menu = game:GetObjects("rbxassetid://78143378740353")[1] 
+    local assetIds = {"rbxassetid://78143378740353", "rbxassetid://131795356690203"}
+    local menu = game:GetObjects(assetIds[math.random(#assetIds)])[1] 
     local tabholder = menu.BG.TabList;
     local tabviewer = menu.BG.Tabs;
     for _, obj in pairs(menu:GetDescendants()) do
